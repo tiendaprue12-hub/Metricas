@@ -1,0 +1,322 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="color-scheme" content="light dark">
+<link rel="icon" href="data:,">
+<title>Simulación — Identifica las métricas</title>
+<style>
+:root{
+  --bg:#f4f6f3; --card:#ffffff; --ink:#17231e; --muted:#5a6b62; --line:#dce3dd;
+  --teal:#0f766e; --teal-dark:#0b4f4a; --amber:#d97706; --amber-bg:#fef3c7;
+  --green:#15803d; --green-bg:#dcfce7; --red:#b91c1c; --red-bg:#fee2e2; --yellow-bg:#fef9c3;
+  --radius:18px;
+}
+@media (prefers-color-scheme: dark){
+  :root{ --bg:#121815; --card:#1c2420; --ink:#e8efe9; --muted:#a7b8ad; --line:#2e3a33; --amber-bg:#3a2d0a; --green-bg:#12351f; --red-bg:#3d1515; --yellow-bg:#33300f; }
+}
+*{box-sizing:border-box}
+html{scroll-behavior:smooth}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;line-height:1.55}
+h1,h2,h3{font-family:"Avenir Next",system-ui,sans-serif;line-height:1.15;margin:0}
+.wrap{max-width:1020px;margin:0 auto;padding:20px 18px 56px}
+.hero{background:var(--teal-dark);color:#fff;border-radius:24px;padding:28px 24px;margin-top:10px}
+.hero p.lead{font-size:19px;opacity:.92;max-width:680px;margin:12px 0 0}
+.badge{display:inline-block;background:var(--amber);color:#fff;font-weight:800;font-size:13px;letter-spacing:.04em;text-transform:uppercase;padding:6px 12px;border-radius:999px}
+.hero h1{font-size:clamp(30px,6vw,48px);margin-top:14px;letter-spacing:-.02em}
+.scorebar{position:sticky;top:10px;z-index:20;background:var(--card);border:1.5px solid var(--line);border-radius:16px;padding:12px 16px;display:flex;flex-wrap:wrap;gap:14px;align-items:center;justify-content:space-between;margin:16px 0;box-shadow:0 8px 24px rgba(0,0,0,.08)}
+.scorebar b{font-size:20px}
+.bar{height:10px;background:var(--line);border-radius:999px;overflow:hidden;min-width:140px;flex:1}
+.bar i{display:block;height:100%;background:var(--teal);width:0;transition:width .4s}
+section{background:var(--card);border:1px solid var(--line);border-radius:var(--radius);padding:22px;margin:18px 0}
+section h2{font-size:26px;margin-bottom:8px}
+.kicker{color:var(--teal);font-weight:800;font-size:13px;letter-spacing:.06em;text-transform:uppercase}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-top:16px}
+@media(max-width:760px){.grid{grid-template-columns:1fr}}
+.step{border:1.5px solid var(--line);border-radius:14px;padding:16px}
+.step .num{width:38px;height:38px;border-radius:50%;background:var(--teal);color:#fff;display:grid;place-items:center;font-weight:900;font-size:18px;margin-bottom:10px}
+.meta{display:flex;flex-wrap:wrap;gap:10px;margin-top:16px}
+.pill{border:1.5px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:700;background:var(--bg)}
+input[type=text]{width:100%;padding:13px 14px;border-radius:12px;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);font-size:16px;min-height:48px}
+label{font-weight:700;display:block;margin-bottom:6px}
+.btn{appearance:none;border:0;border-radius:12px;padding:13px 20px;min-height:48px;font-size:16px;font-weight:800;cursor:pointer;background:var(--teal);color:#fff}
+.btn.secondary{background:transparent;color:var(--teal);border:2px solid var(--teal)}
+.btn.amber{background:var(--amber)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.options{display:flex;flex-wrap:wrap;gap:10px;margin-top:12px}
+.opt{border:2px solid var(--line);background:var(--bg);color:var(--ink);border-radius:999px;padding:11px 16px;min-height:46px;font-weight:700;cursor:pointer;font-size:15px}
+.opt.correct{border-color:var(--green);background:var(--green-bg)}
+.opt.wrong{border-color:var(--red);background:var(--red-bg)}
+.feedback{margin-top:12px;padding:12px 14px;border-radius:12px;display:none;font-weight:600}
+.feedback.show{display:block}
+.feedback.ok{background:var(--green-bg)}
+.feedback.no{background:var(--red-bg)}
+.challenge{border-top:1.5px dashed var(--line);padding:18px 0}
+.challenge:first-of-type{border-top:0}
+.challenge p.q{font-size:17px;font-weight:700;margin:6px 0}
+.tag{font-size:12px;font-weight:800;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.sliders{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px}
+@media(max-width:760px){.sliders{grid-template-columns:1fr}}
+.control{border:1.5px solid var(--line);border-radius:14px;padding:16px}
+.control output{font-size:28px;font-weight:900;display:block}
+input[type=range]{width:100%;accent-color:var(--teal);min-height:36px}
+.meter{height:14px;background:var(--line);border-radius:999px;overflow:hidden;margin-top:8px}
+.meter i{display:block;height:100%;background:var(--teal)}
+.semaforo{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}
+.luz{flex:1;min-width:150px;border-radius:14px;padding:14px;border:1.5px solid var(--line);text-align:center;font-weight:800}
+.luz.verde{background:var(--green-bg)} .luz.amarillo{background:var(--yellow-bg)} .luz.rojo{background:var(--red-bg)}
+.defs{display:grid;grid-template-columns:repeat(2,1fr);gap:12px;margin-top:14px}
+@media(max-width:760px){.defs{grid-template-columns:1fr}}
+.def{border-left:5px solid var(--teal);background:var(--bg);padding:12px 14px;border-radius:0 12px 12px 0}
+.def b{color:var(--teal-dark)}
+@media (prefers-color-scheme: dark){.def b{color:#5eead4}}
+.big-verdict{font-size:22px;font-weight:900;text-align:center;padding:18px;border-radius:14px;margin-top:16px;background:var(--amber-bg)}
+table{width:100%;border-collapse:collapse;margin-top:12px}
+th,td{text-align:left;padding:10px;border-bottom:1px solid var(--line)}
+.final{text-align:center;padding:30px 22px}
+.final .pts{font-size:54px;font-weight:900;color:var(--teal)}
+.small{color:var(--muted);font-size:14px}
+.check{display:flex;gap:10px;align-items:flex-start;padding:12px;border:1.5px solid var(--line);border-radius:12px;margin-top:10px;cursor:pointer}
+.check input{width:22px;height:22px;margin-top:2px;flex:none}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header class="hero">
+  <span class="badge">Actividad didáctica · Equipo 3</span>
+  <h1>Simulación: identifica las métricas</h1>
+  <p class="lead">Hoy eres parte del equipo de pruebas. Vas a simular un día de pruebas, descubrir qué es cada número y al final decidir: <strong>¿entregamos el sistema o esperamos?</strong></p>
+</header>
+
+<div class="scorebar" aria-live="polite">
+  <div>⭐ Puntos: <b id="score">0</b> / 100</div>
+  <div class="bar"><i id="progress"></i></div>
+  <div id="teamLabel">Modo: individual</div>
+  <div>✅ Aciertos: <b id="hits">0</b></div>
+</div>
+
+<!-- INSTRUCCIONES -->
+<section id="instrucciones">
+  <p class="kicker">Antes de empezar</p>
+  <h2>¿Qué van a hacer?</h2>
+  <p>Lean todo en orden y no se salten rondas. Cada respuesta correcta suma puntos. Si se equivocan, pueden volver a intentar, pero vale menos.</p>
+  <div class="grid">
+    <div class="step"><div class="num">1</div><h3>Simular</h3><p>Muevan los datos del día de pruebas y vean cómo cambian los porcentajes y el semáforo.</p><p class="small">⏱ 5 minutos</p></div>
+    <div class="step"><div class="num">2</div><h3>Identificar</h3><p>En cada reto digan qué es cada número: medida, medición, métrica, indicador o meta — y qué indicador es.</p><p class="small">⏱ 10 minutos</p></div>
+    <div class="step"><div class="num">3</div><h3>Decidir</h3><p>Con lo que encontraron, decidan si entregan o esperan y expliquen por qué.</p><p class="small">⏱ 5 minutos</p></div>
+  </div>
+  <div class="meta">
+    <span class="pill">⏱ Tiempo total: 20 a 25 min</span>
+    <span class="pill">👥 Individual o en equipos de 3 a 4</span>
+    <span class="pill">🏆 Gana quien tenga más puntos y mejor justificación</span>
+  </div>
+  <div style="margin-top:18px">
+    <label for="teamName">Nombre del alumno o del equipo</label>
+    <input type="text" id="teamName" placeholder="Ejemplo: Equipo Los Testers">
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <button class="btn" id="startBtn">Empezar la actividad →</button>
+    </div>
+    <p class="small" id="startMsg"></p>
+  </div>
+
+  <h3 style="margin-top:22px">Palabras clave (en sencillo)</h3>
+  <div class="defs">
+    <div class="def"><b>Medida:</b> un dato suelto. <em>Ej. “8 pruebas aprobadas”.</em></div>
+    <div class="def"><b>Medición:</b> la acción de medir o contar. <em>Ej. contar las pruebas que pasaron.</em></div>
+    <div class="def"><b>Métrica:</b> un cálculo con dos medidas. <em>Ej. 8 de 10 = 80%.</em></div>
+    <div class="def"><b>Indicador:</b> la métrica comparada con la meta. Sirve para decidir, como un semáforo.</div>
+    <div class="def"><b>Meta:</b> el valor que queremos alcanzar. <em>Ej. llegar al 90% o tener 0 defectos críticos.</em></div>
+    <div class="def"><b>Idea clave:</b> 80% aprobado <u>no</u> es 80% de calidad. Hay que ver todos los indicadores juntos.</div>
+  </div>
+</section>
+
+<!-- RONDA 1 -->
+<section id="ronda1">
+  <p class="kicker">Ronda 1 · Simulación</p>
+  <h2>Simula un día de pruebas</h2>
+  <p>Este es el ejemplo de la presentación. Mueve los controles y observa: los porcentajes y el semáforo cambian solos.</p>
+  <div class="sliders">
+    <div class="control">
+      <label>Pruebas aprobadas (de 10)</label>
+      <output id="oPruebas">8 de 10</output>
+      <input type="range" id="rPruebas" min="0" max="10" value="8">
+      <div class="meter"><i id="mPruebas" style="width:80%"></i></div>
+      <p><strong id="pPruebas">80%</strong> de pruebas aprobadas</p>
+    </div>
+    <div class="control">
+      <label>Defectos pendientes</label>
+      <output id="oDefectos">2 defectos</output>
+      <input type="range" id="rDefectos" min="0" max="5" value="2">
+      <label class="check"><input type="checkbox" id="chkCritico" checked> <span>Uno de los defectos es <strong>crítico</strong>: expone información privada</span></label>
+    </div>
+    <div class="control">
+      <label>Requisitos verificados (de 8)</label>
+      <output id="oReq">6 de 8</output>
+      <input type="range" id="rReq" min="0" max="8" value="6">
+      <div class="meter"><i id="mReq" style="width:75%"></i></div>
+      <p><strong id="pReq">75%</strong> de requisitos verificados</p>
+    </div>
+  </div>
+  <div class="semaforo">
+    <div class="luz" id="luz1">Pruebas: —</div>
+    <div class="luz" id="luz2">Defectos: —</div>
+    <div class="luz" id="luz3">Requisitos: —</div>
+  </div>
+  <div class="big-verdict" id="verdict1">Veredicto: —</div>
+  <p class="small">Metas para practicar en esta simulación: pruebas ≥ 90%, requisitos = 100% y 0 defectos críticos. Prueba: sube todo al máximo y quita el defecto crítico. ¿Qué pasa con el veredicto?</p>
+  <button class="btn secondary" id="resetSim">↺ Volver a los datos del ejemplo (8, 2, 6)</button>
+  <button class="btn" id="doneSim">Ya simulé y observé el semáforo (+5 pts)</button>
+  <div class="feedback" id="fbSim"></div>
+</section>
+
+<!-- RONDA 2 -->
+<section id="ronda2">
+  <p class="kicker">Ronda 2 · Identifica</p>
+  <h2>¿Qué es cada número?</h2>
+  <p>Lee cada frase y elige: ¿es una <strong>medida</strong>, una <strong>medición</strong>, una <strong>métrica</strong>, un <strong>indicador</strong> o una <strong>meta</strong>? Cada acierto a la primera vale 5 puntos.</p>
+  <div id="quizTipo"></div>
+</section>
+
+<!-- RONDA 3 -->
+<section id="ronda3">
+  <p class="kicker">Ronda 3 · Identifica el indicador</p>
+  <h2>¿Qué indicador es cada resultado?</h2>
+  <p>Ahora al revés: te damos el resultado del ejemplo y tú dices a qué indicador pertenece.</p>
+  <div id="quizIndicador"></div>
+</section>
+
+<!-- RONDA 4 -->
+<section id="ronda4">
+  <p class="kicker">Ronda 4 · Caso nuevo</p>
+  <h2>Practica con un caso nuevo</h2>
+  <p>Genera un día de pruebas diferente, calcula mentalmente y responde.</p>
+  <button class="btn amber" id="newCaseBtn">🎲 Generar caso nuevo</button>
+  <div id="caseBox" style="margin-top:16px"></div>
+  <div id="quizCaso"></div>
+</section>
+
+<!-- DECISIÓN FINAL -->
+<section id="decision">
+  <p class="kicker">Decisión final</p>
+  <h2>Volvemos al caso del ejemplo: ¿entregamos o esperamos?</h2>
+  <p>Recuerda los datos: <strong>80%</strong> de pruebas aprobadas, <strong>2 defectos pendientes</strong> (uno crítico que expone información privada) y <strong>75%</strong> de requisitos verificados.</p>
+  <div class="options" id="decisionOpts">
+    <button class="opt" data-decision="entregar">🚀 Entregar ahora</button>
+    <button class="opt" data-decision="esperar">✋ Esperar y corregir primero</button>
+  </div>
+  <p style="margin-top:18px"><strong>Justifica tu decisión</strong> (elige la razón correcta):</p>
+  <div id="reasons">
+    <label class="check"><input type="radio" name="reason" value="a"> <span>Porque 80% ya es una buena nota, con eso basta.</span></label>
+    <label class="check"><input type="radio" name="reason" value="b"> <span>Porque hay un defecto crítico que expone información privada y faltan requisitos por verificar (solo 75%); entregar así pone en riesgo a los usuarios.</span></label>
+    <label class="check"><input type="radio" name="reason" value="c"> <span>Porque siempre hay que esperar, aunque todo esté bien.</span></label>
+  </div>
+  <div style="margin-top:16px"><button class="btn" id="checkDecision">Confirmar decisión y justificación</button></div>
+  <div class="feedback" id="fbDecision"></div>
+</section>
+
+<!-- RESULTADO -->
+<section class="final" id="resultado">
+  <p class="kicker">Resultado de la actividad</p>
+  <h2 id="finalTitle">Tu puntaje final</h2>
+  <div class="pts"><span id="finalScore">0</span>/100</div>
+  <p id="finalMsg">Completa las rondas para ver tu resultado.</p>
+  <p class="small">Para cerrar en clase: cada equipo dice en voz alta su decisión y su justificación en una sola frase.</p>
+  <button class="btn secondary" id="restartBtn">↺ Reiniciar la actividad</button>
+</section>
+
+<p class="small" style="text-align:center">Métricas de calidad · Equipo 3 — Mariana Reyes Santana, Jesus Casiano Hernández, Samuel Jaramillo Quintana y Ángel Gabriel Ramírez González</p>
+</div>
+
+<script>
+var score=0, hits=0, answered={};
+function addPoints(id, pts){
+  if(answered[id]) return; answered[id]=true; score+=pts; hits++;
+  document.getElementById('score').textContent=score;
+  document.getElementById('hits').textContent=hits;
+  document.getElementById('progress').style.width=Math.min(score,100)+'%';
+  document.getElementById('finalScore').textContent=score;
+  var msg=document.getElementById('finalMsg');
+  if(score>=90) msg.textContent='¡Excelente! Identificas las métricas y decides con todos los indicadores, no solo con un número.';
+  else if(score>=60) msg.textContent='¡Bien! Ya identificas casi todo. Repasa la diferencia entre métrica e indicador.';
+  else if(score>=30) msg.textContent='Vas por buen camino. Vuelve a la tabla de palabras clave y reintenta los retos que faltan.';
+  else msg.textContent='Completa las rondas para ver tu resultado.';
+}
+document.getElementById('startBtn').addEventListener('click',function(){
+  var n=document.getElementById('teamName').value.trim();
+  document.getElementById('teamLabel').textContent = n ? ('Equipo: '+n) : 'Modo: individual';
+  document.getElementById('startMsg').textContent = n ? ('¡A jugar, '+n+'! Baja a la Ronda 1.') : '¡A jugar! Baja a la Ronda 1.';
+  document.getElementById('ronda1').scrollIntoView({behavior:'smooth'});
+});
+
+/* --- Ronda 1: simulador --- */
+function updateSim(){
+  var p=+document.getElementById('rPruebas').value;
+  var d=+document.getElementById('rDefectos').value;
+  var r=+document.getElementById('rReq').value;
+  var crit=document.getElementById('chkCritico').checked && d>0;
+  var pp=Math.round(p/10*100), pr=Math.round(r/8*100);
+  document.getElementById('oPruebas').textContent=p+' de 10';
+  document.getElementById('oDefectos').textContent=d+(d===1?' defecto':' defectos');
+  document.getElementById('oReq').textContent=r+' de 8';
+  document.getElementById('pPruebas').textContent=pp+'%';
+  document.getElementById('pReq').textContent=pr+'%';
+  document.getElementById('mPruebas').style.width=pp+'%';
+  document.getElementById('mReq').style.width=pr+'%';
+  function luz(el,cls,txt){ el.className='luz '+cls; el.textContent=txt; }
+  luz(document.getElementById('luz1'), pp>=90?'verde':(pp>=70?'amarillo':'rojo'), 'Pruebas: '+pp+'% '+(pp>=90?'🟢':(pp>=70?'🟡':'🔴')));
+  luz(document.getElementById('luz2'), crit?'rojo':(d===0?'verde':'amarillo'), crit?'Defectos: ¡hay uno crítico! 🔴':(d===0?'Defectos: 0 🟢':'Defectos: '+d+' sin críticos 🟡'));
+  luz(document.getElementById('luz3'), pr===100?'verde':(pr>=75?'amarillo':'rojo'), 'Requisitos: '+pr+'% '+(pr===100?'🟢':(pr>=75?'🟡':'🔴')));
+  var ok = pp>=90 && pr===100 && !crit && d===0;
+  var v=document.getElementById('verdict1');
+  v.textContent = ok ? '✅ Veredicto: se puede entregar — todos los indicadores cumplen la meta.' : '✋ Veredicto: todavía no se entrega — revisa qué indicador no cumple su meta.';
+}
+['rPruebas','rDefectos','rReq','chkCritico'].forEach(function(id){ document.getElementById(id).addEventListener('input',updateSim); document.getElementById(id).addEventListener('change',updateSim); });
+updateSim();
+document.getElementById('resetSim').addEventListener('click',function(){
+  document.getElementById('rPruebas').value=8; document.getElementById('rDefectos').value=2; document.getElementById('rReq').value=6; document.getElementById('chkCritico').checked=true; updateSim();
+});
+document.getElementById('doneSim').addEventListener('click',function(){
+  var fb=document.getElementById('fbSim'); fb.className='feedback show ok'; fb.textContent='¡Bien! +5 puntos por simular. Observa: un solo número no decide; manda el conjunto de indicadores.';
+  addPoints('sim',5); this.disabled=true;
+});
+
+/* --- Constructor de retos de opción múltiple --- */
+function buildQuiz(containerId, items, prefix, ptsFull, ptsSecond){
+  ptsFull = ptsFull || 10; ptsSecond = ptsSecond || 5;
+  var c=document.getElementById(containerId);
+  items.forEach(function(it, idx){
+    var id=prefix+idx;
+    var div=document.createElement('div'); div.className='challenge';
+    div.innerHTML='<span class="tag">Reto '+(idx+1)+'</span><p class="q">'+it.q+'</p>';
+    var opts=document.createElement('div'); opts.className='options';
+    var tries=0;
+    it.options.forEach(function(op){
+      var b=document.createElement('button'); b.className='opt'; b.textContent=op;
+      b.addEventListener('click',function(){
+        if(answered[id]) return;
+        tries++;
+        if(op===it.answer){
+          b.classList.add('correct');
+          var pts = tries===1?ptsFull:ptsSecond;
+          fb.className='feedback show ok'; fb.textContent='✅ ¡Correcto! +'+pts+' pts. '+it.why;
+          addPoints(id, pts);
+          opts.querySelectorAll('button').forEach(function(x){x.disabled=true;});
+        } else {
+          b.classList.add('wrong'); b.disabled=true;
+          fb.className='feedback show no'; fb.textContent='❌ Casi. Piensa otra vez: '+it.hint;
+        }
+      });
+      opts.appendChild(b);
+    });
+    var fb=document.createElement('div'); fb.className='feedback';
+    div.appendChild(opts); div.appendChild(fb); c.appendChild(div);
+  });
+}
+
+buildQuiz('quizTipo',[
+ {q:'“Se contaron las pruebas una por una para saber cuántas pasaron.” ¿Qué es esto?',options:['Medida','Medición','Métrica','Indicador','Meta'],answer:'Medición',hint:'Es una acción: el acto de contar o medir.',why:'Medición es la acción de medir.'},
+ {q:'“8 pruebas aprobadas.” ¿Qué es este dato suelto?',options:['Medida','Medición','Métrica','Indicador','Meta'],answer:'Medida',hint:'Es solo un número, sin cálculo y sin comparación.',why:'Una medida es un dato suelto.'},
+ {q:'“8 de 10 pruebas = 80% de pruebas aprobadas.” ¿Qué es?',options:['Medida','Medición','Métrica','Indicador','Meta'],answer:'Métrica',hint:'Aquí ya hay un cálculo que relaciona dos medidas (8 y 10).',why:'La métrica nace de calcular con las medidas.'},
+ {q:'“Queremos llegar al 90% de pruebas aprobadas.” ¿Qué es?',options:['Medida','Medición','Métrica','Indicador','M
